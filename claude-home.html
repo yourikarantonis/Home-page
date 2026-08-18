@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home</title>
+<style>
+  :root{
+    --bg-1:#0A0D1F;
+    --bg-2:#131832;
+    --card:#161C3B;
+    --card-soft:rgba(255,255,255,0.04);
+    --line:rgba(255,255,255,0.09);
+    --line-strong:rgba(255,255,255,0.16);
+    --ink:#ECEBFF;
+    --ink-soft:#A6ABD9;
+    --ink-faint:#6B70A0;
+    --accent:#8B7CF6;
+    --accent-2:#5B8CFF;
+    --accent-soft:rgba(139,124,246,0.16);
+    --pink:#F17FB5;
+    --pink-soft:rgba(241,127,181,0.16);
+    --green:#4ADE80;
+    --amber:#FBBF24;
+    --red:#F87171;
+    --radius:12px;
+    --radius-sm:8px;
+    --serif:Georgia,'Iowan Old Style',serif;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  }
+  body.theme-pink{ --accent:#F17FB5; --accent-2:#C77DFF; --accent-soft:rgba(241,127,181,0.16); }
+
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1200px 600px at 15% -10%, rgba(139,124,246,0.18), transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, rgba(91,140,255,0.14), transparent 55%),
+      linear-gradient(180deg,var(--bg-1),var(--bg-2));
+    color:var(--ink);
+    font-family:var(--sans);
+    min-height:100vh;
+  }
+  ::-webkit-scrollbar{width:8px;height:8px;}
+  ::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:5px;}
+
+  .shell{max-width:1440px;margin:0 auto;padding:22px 22px 60px;}
+
+  /* ===== header ===== */
+  header{
+    display:flex;justify-content:space-between;align-items:center;gap:16px;
+    flex-wrap:wrap;margin-bottom:20px;
+  }
+  .greet-block{display:flex;flex-direction:column;gap:2px;}
+  .eyebrow{
+    font-family:var(--mono);font-size:10.5px;letter-spacing:2px;text-transform:uppercase;
+    color:var(--ink-faint);
+  }
+  .greet{
+    font-family:var(--serif);font-size:30px;font-weight:700;letter-spacing:0.2px;
+    background:linear-gradient(90deg,var(--ink),var(--ink-soft));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .header-right{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+  .weather-chip{
+    display:flex;align-items:center;gap:8px;background:var(--card-soft);border:1px solid var(--line);
+    border-radius:999px;padding:7px 14px;font-size:12.5px;color:var(--ink-soft);cursor:pointer;
+    min-width:150px;
+  }
+  .weather-chip:hover{border-color:var(--line-strong);}
+  .weather-chip .wtemp{color:var(--ink);font-weight:700;font-family:var(--mono);}
+  .clock-chip{font-family:var(--mono);font-size:12px;color:var(--ink-soft);text-align:right;}
+  .clock-chip b{color:var(--ink);}
+
+  .cmdbar{
+    display:flex;align-items:center;gap:10px;background:var(--card-soft);
+    border:1px solid var(--line);border-radius:999px;padding:11px 18px;margin-bottom:22px;
+  }
+  .cmdbar input{
+    flex:1;background:transparent;border:none;outline:none;color:var(--ink);font-size:13.5px;font-family:var(--sans);
+  }
+  .cmdbar input::placeholder{color:var(--ink-faint);}
+  .cmdbar kbd{
+    font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);border:1px solid var(--line);
+    border-radius:4px;padding:2px 6px;
+  }
+
+  /* ===== layout ===== */
+  .board{display:grid;grid-template-columns:250px 1fr 320px;gap:18px;align-items:start;}
+  @media (max-width:1100px){.board{grid-template-columns:1fr;}}
+  .col{display:flex;flex-direction:column;gap:16px;}
+
+  .panel{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px;
+  }
+  .panel-head{
+    display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;
+  }
+  .panel-head h3{
+    margin:0;font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  .panel-head .action{
+    background:none;border:none;color:var(--ink-faint);font-family:var(--mono);font-size:10.5px;
+    cursor:pointer;text-transform:uppercase;letter-spacing:0.5px;padding:0;
+  }
+  .panel-head .action:hover{color:var(--accent);}
+
+  input[type=text],input[type=date],input[type=number],textarea,select{
+    font-family:var(--sans);font-size:13px;color:var(--ink);
+    background:rgba(255,255,255,0.03);border:1px solid var(--line);border-radius:var(--radius-sm);
+    padding:8px 10px;outline:none;width:100%;
+  }
+  input:focus,textarea:focus,select:focus{border-color:var(--accent);}
+  button{
+    font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;
+    border-radius:var(--radius-sm);border:1px solid var(--line-strong);
+    background:var(--card-soft);color:var(--ink);padding:8px 13px;
+  }
+  button:hover{border-color:var(--accent);}
+  button.primary{
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));border:none;color:#0A0D1F;font-weight:700;
+  }
+  button.primary:hover{filter:brightness(1.08);}
+  button.ghost{background:none;border:none;color:var(--ink-faint);padding:2px 4px;font-weight:400;}
+  button.ghost:hover{color:var(--accent);}
+  button:disabled{opacity:0.5;cursor:default;}
+
+  /* ===== quick launch ===== */
+  .tile{
+    display:flex;align-items:center;gap:10px;padding:10px;border-radius:var(--radius-sm);
+    border:1px solid var(--line);background:rgba(255,255,255,0.02);margin-bottom:8px;
+    text-decoration:none;color:var(--ink);cursor:pointer;
+  }
+  .tile:hover{border-color:var(--accent);background:var(--accent-soft);}
+  .tile .ic{font-size:18px;}
+  .tile .tt{font-size:12.5px;font-weight:600;}
+  .tile .ts{display:block;font-size:10.5px;color:var(--ink-faint);font-family:var(--mono);}
+
+  /* ===== subject switcher ===== */
+  .chip-row{display:flex;flex-wrap:wrap;gap:6px;}
+  .chip{
+    font-family:var(--mono);font-size:10.5px;letter-spacing:0.5px;padding:5px 11px;
+    border-radius:999px;border:1px solid var(--line);color:var(--ink-soft);cursor:pointer;
+  }
+  .chip.active{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700;}
+
+  /* ===== saved prompts ===== */
+  .prompt-item{
+    display:flex;justify-content:space-between;align-items:flex-start;gap:8px;
+    padding:8px 0;border-bottom:1px dashed var(--line);
+  }
+  .prompt-item:last-child{border-bottom:none;}
+  .prompt-item p{margin:0;font-size:12px;color:var(--ink-soft);line-height:1.4;flex:1;}
+  .empty{font-size:11.5px;color:var(--ink-faint);font-style:italic;}
+
+  /* ===== center: assignment strip ===== */
+  .assign-strip{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;}
+  .assign-card{
+    flex:0 0 auto;min-width:150px;background:rgba(255,255,255,0.03);border:1px solid var(--line);
+    border-radius:var(--radius-sm);padding:10px 12px;
+  }
+  .assign-card .subj{font-family:var(--mono);font-size:9.5px;letter-spacing:1px;text-transform:uppercase;color:var(--accent);}
+  .assign-card .ttl{font-size:12.5px;font-weight:600;margin:4px 0;}
+  .assign-card .dd{font-family:var(--mono);font-size:11px;color:var(--ink-soft);}
+  .assign-card.over .dd{color:var(--red);}
+  .assign-card.soon .dd{color:var(--amber);}
+
+  /* ===== mood toggle ===== */
+  .mood-toggle{display:flex;gap:6px;}
+  .mood-btn{font-size:11.5px;padding:6px 12px;}
+  .mood-btn.active{background:var(--accent-soft);border-color:var(--accent);}
+
+  /* ===== chat ===== */
+  .chat-panel{display:flex;flex-direction:column;min-height:520px;}
+  .quick-actions{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+  .quick-actions button{font-size:11.5px;padding:6px 11px;}
+  .chat-log{
+    flex:1;min-height:320px;max-height:520px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;
+    padding:4px 2px 10px;
+  }
+  .msg{max-width:82%;padding:10px 13px;border-radius:12px;font-size:13.5px;line-height:1.55;}
+  .msg.user{align-self:flex-end;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#0A0D1F;font-weight:500;border-bottom-right-radius:3px;}
+  .msg.assistant{align-self:flex-start;background:rgba(255,255,255,0.05);border:1px solid var(--line);border-bottom-left-radius:3px;white-space:pre-wrap;}
+  .msg.thinking{align-self:flex-start;color:var(--ink-faint);font-style:italic;font-size:12.5px;}
+  .chat-empty{margin:auto;text-align:center;color:var(--ink-faint);font-family:var(--serif);font-size:14px;padding:30px;}
+  .composer{display:flex;gap:8px;margin-top:10px;}
+  .composer textarea{resize:none;min-height:46px;max-height:120px;flex:1;}
+  .composer button{padding:0 18px;}
+
+  /* ===== connectors ===== */
+  .connector{border:1px solid var(--line);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:10px;background:rgba(255,255,255,0.02);}
+  .connector-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;}
+  .connector-head .name{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;}
+  .connector-body{font-size:12px;color:var(--ink-soft);line-height:1.5;white-space:pre-wrap;max-height:150px;overflow-y:auto;}
+  .connector-body.loading{color:var(--ink-faint);font-style:italic;}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--ink-faint);}
+  .dot.ok{background:var(--green);}
+  .dot.err{background:var(--red);}
+
+  /* ===== todo / habits / pomodoro ===== */
+  .todo-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px dashed var(--line);}
+  .todo-row:last-child{border-bottom:none;}
+  .todo-row span{flex:1;font-size:12.5px;}
+  .todo-row.done span{text-decoration:line-through;color:var(--ink-faint);}
+  .todo-row input[type=checkbox]{accent-color:var(--accent);}
+  .add-row{display:flex;gap:6px;margin-top:8px;}
+
+  .pomo-display{font-family:var(--mono);font-size:34px;text-align:center;margin:6px 0;color:var(--ink);}
+  .pomo-controls{display:flex;gap:6px;justify-content:center;}
+  .pomo-meta{text-align:center;font-size:11px;color:var(--ink-faint);font-family:var(--mono);margin-top:6px;}
+
+  .habit-row{display:flex;align-items:center;gap:8px;padding:6px 0;}
+  .habit-row .hname{font-size:12px;flex:0 0 90px;}
+  .habit-days{display:flex;gap:4px;}
+  .hday{width:20px;height:20px;border-radius:5px;border:1px solid var(--line);cursor:pointer;}
+  .hday.on{background:var(--green);border-color:var(--green);}
+
+  /* ===== theme / project log / quote ===== */
+  .theme-swatches{display:flex;gap:8px;}
+  .swatch{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2px solid transparent;}
+  .swatch.active{border-color:var(--ink);}
+  .swatch.blue{background:linear-gradient(135deg,#8B7CF6,#5B8CFF);}
+  .swatch.pink{background:linear-gradient(135deg,#F17FB5,#C77DFF);}
+
+  .quote-box{font-family:var(--serif);font-size:13.5px;line-height:1.6;color:var(--ink-soft);font-style:italic;}
+
+  .log-item{padding:7px 0;border-bottom:1px dashed var(--line);font-size:12px;color:var(--ink-soft);}
+  .log-item:last-child{border-bottom:none;}
+  .log-item b{color:var(--ink);font-family:var(--mono);font-size:10.5px;display:block;margin-bottom:2px;}
+
+  .note-flag{
+    font-size:10.5px;color:var(--ink-faint);border:1px dashed var(--line);border-radius:var(--radius-sm);
+    padding:8px 10px;line-height:1.5;margin-top:8px;
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <header>
+    <div class="greet-block">
+      <span class="eyebrow" id="dateLine"></span>
+      <span class="greet" id="greetLine">Welcome back</span>
+    </div>
+    <div class="header-right">
+      <div class="weather-chip" id="weatherChip">☁ <span class="wtemp" id="weatherText">tap to check weather</span></div>
+      <div class="clock-chip" id="clockChip"></div>
+    </div>
+  </header>
+
+  <div class="cmdbar">
+    <span>⌘</span>
+    <input type="text" id="cmdInput" placeholder="Search this dashboard, or press / to jump in">
+    <kbd>/</kbd>
+  </div>
+
+  <div class="board">
+
+    <!-- LEFT COLUMN -->
+    <div class="col">
+      <div class="panel">
+        <div class="panel-head"><h3>Quick launch</h3><button class="action" id="addTileBtn">+ add</button></div>
+        <div id="tileList"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>Subjects</h3></div>
+        <div class="chip-row" id="subjectChips"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>Saved prompts</h3><button class="action" id="addPromptBtn">+ add</button></div>
+        <div id="promptList"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>Theme</h3></div>
+        <div class="theme-swatches" id="themeSwatches">
+          <div class="swatch blue active" data-theme="blue"></div>
+          <div class="swatch pink" data-theme="pink"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTER COLUMN -->
+    <div class="col">
+      <div class="panel">
+        <div class="panel-head"><h3>Due this week</h3><button class="action" id="addAssignBtn">+ add</button></div>
+        <div class="assign-strip" id="assignStrip"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Mode</h3>
+          <div class="mood-toggle">
+            <button class="mood-btn active" data-mood="study">Study</button>
+            <button class="mood-btn" data-mood="chill">Chill</button>
+          </div>
+        </div>
+        <div class="quote-box" id="briefBox">Set your mode — study or chill — and I'll shape what's around the chat.</div>
+      </div>
+
+      <div class="panel chat-panel">
+        <div class="panel-head"><h3>Chat</h3><button class="action" id="clearChatBtn">clear</button></div>
+        <div class="quick-actions">
+          <button data-qa="Summarize what we've been working on so far.">Summarize</button>
+          <button data-qa="Explain this in simple terms: ">Explain</button>
+          <button data-qa="Quiz me on ">Quiz me</button>
+          <button data-qa="Draft an email about ">Draft an email</button>
+        </div>
+        <div class="chat-log" id="chatLog"><div class="chat-empty">Ask me anything — this pane calls the real Claude API.</div></div>
+        <div class="composer">
+          <textarea id="chatInput" placeholder="Message Claude…"></textarea>
+          <button class="primary" id="sendChatBtn">Send</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="col">
+      <div class="panel">
+        <div class="panel-head"><h3>Connectors</h3></div>
+        <div id="connectorList"></div>
+        <div class="note-flag">These call your actual connected accounts through the Claude API — Refresh runs a live request each time.</div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>To-do</h3></div>
+        <div id="todoList"></div>
+        <div class="add-row"><input type="text" id="todoInput" placeholder="Add a task…"><button id="todoAddBtn">Add</button></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>Focus timer</h3></div>
+        <div class="pomo-display" id="pomoDisplay">25:00</div>
+        <div class="pomo-controls">
+          <button id="pomoStart">Start</button>
+          <button id="pomoPause">Pause</button>
+          <button id="pomoReset">Reset</button>
+        </div>
+        <div class="pomo-meta" id="pomoMeta">0 sessions completed</div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>Habits</h3><button class="action" id="addHabitBtn">+ add</button></div>
+        <div id="habitList"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>Project log</h3><button class="action" id="addLogBtn">+ add</button></div>
+        <div id="logList"></div>
+        <div class="note-flag">This is a manual log — I can't pull your real past Claude.ai chat history into an artifact, so log entries yourself here to build a timeline.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const uid = p => (p||'x')+Date.now()+Math.random().toString(36).slice(2,7);
+const esc = s => { const d=document.createElement('div'); d.textContent = s||''; return d.innerHTML; };
+
+/* ---------------- storage helpers ---------------- */
+async function loadJSON(key, fallback){
+  try{
+    const r = await window.storage.get(key, false);
+    return r && r.value ? JSON.parse(r.value) : fallback;
+  }catch(e){ return fallback; }
+}
+async function saveJSON(key, val){
+  try{ await window.storage.set(key, JSON.stringify(val), false); }catch(e){ console.error(e); }
+}
+
+/* ---------------- Claude API helper ---------------- */
+async function callClaude({prompt, webSearch=false, mcpServer=null}){
+  const body = {
+    model: "claude-sonnet-4-6",
+    max_tokens: 1000,
+    messages: [{role:"user", content: prompt}]
+  };
+  if(webSearch) body.tools = [{type:"web_search_20250305", name:"web_search"}];
+  if(mcpServer) body.mcp_servers = [mcpServer];
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)
+  });
+  const data = await res.json();
+  const content = data.content || [];
+  const text = content.filter(c=>c.type==="text").map(c=>c.text).join("\n").trim();
+  const toolResults = content.filter(c=>c.type==="mcp_tool_result")
+    .map(c=> c.content && c.content[0] ? c.content[0].text : "").join("\n");
+  return { text, toolResults, raw: data };
+}
+
+/* ================= clock / date / greeting ================= */
+function updateClock(){
+  const now = new Date();
+  $('clockChip').innerHTML = now.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'});
+  $('dateLine').textContent = now.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'}).toUpperCase();
+  const h = now.getHours();
+  const g = h<5 ? 'Still up' : h<12 ? 'Good morning' : h<17 ? 'Good afternoon' : h<21 ? 'Good evening' : 'Late one tonight';
+  $('greetLine').textContent = g + ', Youri';
+}
+updateClock(); setInterval(updateClock, 30000);
+
+/* ================= weather (live via web search) ================= */
+$('weatherChip').addEventListener('click', async ()=>{
+  $('weatherText').textContent = 'checking…';
+  try{
+    const {text} = await callClaude({
+      webSearch:true,
+      prompt:"Search for the current weather in Perth, Western Australia right now. Reply with ONLY the temperature in Celsius and a 1-2 word condition, formatted exactly like: 19°C, partly cloudy — nothing else."
+    });
+    $('weatherText').textContent = text || 'unavailable';
+  }catch(e){ $('weatherText').textContent = 'unavailable'; }
+});
+
+/* ================= quick launch tiles ================= */
+let tiles = [];
+async function loadTiles(){
+  tiles = await loadJSON('home-tiles', [
+    {id:uid(), icon:'📇', title:'Study Hub', sub:'card catalog + notebook', url:''},
+    {id:uid(), icon:'👾', title:'Void Survivor: Arena', sub:'browser game dev', url:''},
+    {id:uid(), icon:'⚡', title:'Flashbang', sub:"Noah's flashcard app", url:'https://flashbang.app'}
+  ]);
+  renderTiles();
+}
+function renderTiles(){
+  $('tileList').innerHTML = tiles.map(t=>`
+    <div class="tile" data-id="${t.id}">
+      <span class="ic">${t.icon}</span>
+      <span>
+        <span class="tt">${esc(t.title)}</span>
+        <span class="ts">${esc(t.sub)}</span>
+      </span>
+    </div>
+  `).join('') || '<div class="empty">No tiles yet.</div>';
+  $('tileList').querySelectorAll('.tile').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const t = tiles.find(x=>x.id===el.dataset.id);
+      if(t && t.url) window.open(t.url, '_blank');
+    });
+  });
+}
+$('addTileBtn').addEventListener('click', async ()=>{
+  const title = prompt('Tile name?'); if(!title) return;
+  const url = prompt('Link (optional, leave blank if it just lives in this chat):') || '';
+  tiles.push({id:uid(), icon:'🔗', title, sub: url?'external link':'reference', url});
+  await saveJSON('home-tiles', tiles); renderTiles();
+});
+
+/* ================= subject switcher ================= */
+const subjects = ['All','Mathematics','Science','History','English'];
+let activeSubject = 'All';
+function renderSubjects(){
+  $('subjectChips').innerHTML = subjects.map(s=>`<div class="chip ${s===activeSubject?'active':''}" data-s="${s}">${s}</div>`).join('');
+  $('subjectChips').querySelectorAll('.chip').forEach(el=>{
+    el.addEventListener('click', ()=>{ activeSubject = el.dataset.s; renderSubjects(); renderAssignments(); });
+  });
+}
+
+/* ================= saved prompts ================= */
+let prompts = [];
+async function loadPrompts(){
+  prompts = await loadJSON('home-prompts', [
+    'Explain this Year 9 Maths concept with a worked example: ',
+    'Turn these notes into a TEEL paragraph: ',
+    'Quiz me on the last thing we studied, one question at a time.'
+  ]);
+  renderPrompts();
+}
+function renderPrompts(){
+  $('promptList').innerHTML = prompts.map((p,i)=>`
+    <div class="prompt-item" data-i="${i}">
+      <p>${esc(p)}</p>
+      <div>
+        <button class="ghost" data-use="${i}">use</button>
+        <button class="ghost" data-del="${i}">✕</button>
+      </div>
+    </div>
+  `).join('') || '<div class="empty">No saved prompts yet.</div>';
+  $('promptList').querySelectorAll('[data-use]').forEach(b=>{
+    b.addEventListener('click', ()=>{ $('chatInput').value = prompts[b.dataset.use]; $('chatInput').focus(); });
+  });
+  $('promptList').querySelectorAll('[data-del]').forEach(b=>{
+    b.addEventListener('click', async ()=>{ prompts.splice(b.dataset.del,1); await saveJSON('home-prompts', prompts); renderPrompts(); });
+  });
+}
+$('addPromptBtn').addEventListener('click', async ()=>{
+  const p = prompt('Prompt to save?'); if(!p) return;
+  prompts.push(p); await saveJSON('home-prompts', prompts); renderPrompts();
+});
+
+/* ================= theme ================= */
+async function loadTheme(){
+  const t = await loadJSON('home-theme', 'blue');
+  document.body.classList.toggle('theme-pink', t==='pink');
+  $('themeSwatches').querySelectorAll('.swatch').forEach(s=> s.classList.toggle('active', s.dataset.theme===t));
+}
+$('themeSwatches').querySelectorAll('.swatch').forEach(s=>{
+  s.addEventListener('click', async ()=>{
+    document.body.classList.toggle('theme-pink', s.dataset.theme==='pink');
+    $('themeSwatches').querySelectorAll('.swatch').forEach(x=>x.classList.remove('active'));
+    s.classList.add('active');
+    await saveJSON('home-theme', s.dataset.theme);
+  });
+});
+
+/* ================= assignments (due this week) ================= */
+let assignments = [];
+function daysUntil(iso){
+  const now = new Date(new Date().toISOString().slice(0,10)+'T00:00:00');
+  const due = new Date(iso+'T00:00:00');
+  return Math.round((due-now)/86400000);
+}
+async function loadAssignments(){
+  assignments = await loadJSON('home-assignments', []);
+  renderAssignments();
+}
+function renderAssignments(){
+  let list = assignments.slice();
+  if(activeSubject!=='All') list = list.filter(a=>a.subject===activeSubject);
+  list.sort((a,b)=>a.due.localeCompare(b.due));
+  $('assignStrip').innerHTML = list.map(a=>{
+    const dd = daysUntil(a.due);
+    const cls = dd<0?'over':dd<=2?'soon':'';
+    return `<div class="assign-card ${cls}">
+      <div class="subj">${esc(a.subject)}</div>
+      <div class="ttl">${esc(a.title)}</div>
+      <div class="dd">${dd<0?Math.abs(dd)+'d overdue':dd===0?'due today':dd+'d left'}</div>
+    </div>`;
+  }).join('') || '<div class="empty">Nothing due — add an assignment to track it here.</div>';
+}
+$('addAssignBtn').addEventListener('click', async ()=>{
+  const title = prompt('Assignment title?'); if(!title) return;
+  const subject = prompt('Subject? (Mathematics / Science / History / English)') || 'General';
+  const due = prompt('Due date? (YYYY-MM-DD)'); if(!due) return;
+  assignments.push({id:uid(), title, subject, due});
+  await saveJSON('home-assignments', assignments); renderAssignments();
+});
+
+/* ================= mood / daily brief ================= */
+let mood = 'study';
+document.querySelectorAll('.mood-btn').forEach(b=>{
+  b.addEventListener('click', async ()=>{
+    mood = b.dataset.mood;
+    document.querySelectorAll('.mood-btn').forEach(x=>x.classList.toggle('active', x===b));
+    await refreshBrief();
+  });
+});
+async function refreshBrief(){
+  $('briefBox').textContent = 'thinking…';
+  try{
+    const promptText = mood==='study'
+      ? "Give me one short, motivating study tip for a Year 9 student, under 25 words. No preamble."
+      : "Search the web and give me one interesting, light tech or gaming headline from today plus one fun fact, under 35 words total. No preamble.";
+    const {text} = await callClaude({prompt: promptText, webSearch: mood==='chill'});
+    $('briefBox').textContent = text || '—';
+  }catch(e){ $('briefBox').textContent = 'Could not load right now.'; }
+}
+
+/* ================= chat (live) ================= */
+let chatHistory = [];
+async function loadChat(){
+  chatHistory = await loadJSON('home-chat', []);
+  renderChat();
+}
+function renderChat(){
+  if(chatHistory.length===0){
+    $('chatLog').innerHTML = '<div class="chat-empty">Ask me anything — this pane calls the real Claude API.</div>';
+    return;
+  }
+  $('chatLog').innerHTML = chatHistory.map(m=>`<div class="msg ${m.role}">${esc(m.text)}</div>`).join('');
+  $('chatLog').scrollTop = $('chatLog').scrollHeight;
+}
+async function sendChat(){
+  const text = $('chatInput').value.trim();
+  if(!text) return;
+  $('chatInput').value = '';
+  chatHistory.push({role:'user', text});
+  renderChat();
+  $('chatLog').insertAdjacentHTML('beforeend', '<div class="msg thinking" id="thinkingMsg">Claude is thinking…</div>');
+  $('chatLog').scrollTop = $('chatLog').scrollHeight;
+  $('sendChatBtn').disabled = true;
+  try{
+    const apiMessages = chatHistory.map(m=>({role: m.role==='user'?'user':'assistant', content:m.text}));
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({model:"claude-sonnet-4-6", max_tokens:1000, messages: apiMessages})
+    });
+    const data = await res.json();
+    const reply = (data.content||[]).filter(c=>c.type==='text').map(c=>c.text).join('\n').trim() || '(no response)';
+    chatHistory.push({role:'assistant', text: reply});
+  }catch(e){
+    chatHistory.push({role:'assistant', text: 'Something went wrong reaching the API.'});
+  }
+  await saveJSON('home-chat', chatHistory);
+  renderChat();
+  $('sendChatBtn').disabled = false;
+}
+$('sendChatBtn').addEventListener('click', sendChat);
+$('chatInput').addEventListener('keydown', e=>{
+  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendChat(); }
+});
+$('clearChatBtn').addEventListener('click', async ()=>{
+  chatHistory = []; await saveJSON('home-chat', chatHistory); renderChat();
+});
+document.querySelectorAll('[data-qa]').forEach(b=>{
+  b.addEventListener('click', ()=>{ $('chatInput').value = b.dataset.qa; $('chatInput').focus(); });
+});
+
+/* ================= connectors (live via MCP) ================= */
+const CONNECTORS = [
+  {key:'gmail', name:'Gmail', icon:'✉️', url:'https://gmailmcp.googleapis.com/mcp/v1', prompt:'List my 5 most recent unread email subjects and senders, one per line, no extra commentary.'},
+  {key:'calendar', name:'Calendar', icon:'📅', url:'https://calendarmcp.googleapis.com/mcp/v1', prompt:"List my calendar events for today, with times, one per line. If there are none, say so."},
+  {key:'drive', name:'Drive', icon:'🗂️', url:'https://drivemcp.googleapis.com/mcp/v1', prompt:'List my 5 most recently modified Google Drive files, one per line, no extra commentary.'},
+  {key:'notion', name:'Notion', icon:'🗒️', url:'https://mcp.notion.com/mcp', prompt:'List 5 recently updated Notion pages I have access to, one per line, no extra commentary.'},
+  {key:'slack', name:'Slack', icon:'💬', url:'https://mcp.slack.com/mcp', prompt:'List my 5 most recent unread Slack messages or mentions, one per line, no extra commentary.'},
+  {key:'canva', name:'Canva', icon:'🎨', url:'https://mcp.canva.com/mcp', prompt:'List 5 of my recent Canva designs by name, one per line, no extra commentary.'}
+];
+function renderConnectorList(){
+  $('connectorList').innerHTML = CONNECTORS.map(c=>`
+    <div class="connector" id="conn-${c.key}">
+      <div class="connector-head">
+        <div class="name"><span class="dot" id="dot-${c.key}"></span>${c.icon} ${c.name}</div>
+        <button class="ghost" data-refresh="${c.key}">refresh</button>
+      </div>
+      <div class="connector-body" id="body-${c.key}">Tap refresh to check.</div>
+    </div>
+  `).join('');
+  $('connectorList').querySelectorAll('[data-refresh]').forEach(b=>{
+    b.addEventListener('click', ()=> refreshConnector(b.dataset.refresh));
+  });
+}
+async function refreshConnector(key){
+  const c = CONNECTORS.find(x=>x.key===key);
+  $('dot-'+key).className = 'dot';
+  $('body-'+key).className = 'connector-body loading';
+  $('body-'+key).textContent = 'Checking ' + c.name + '…';
+  try{
+    const {text, toolResults} = await callClaude({
+      prompt: c.prompt,
+      mcpServer: {type:"url", url:c.url, name:c.key+"-mcp"}
+    });
+    const out = (toolResults || text || 'No data returned.').trim();
+    $('body-'+key).className = 'connector-body';
+    $('body-'+key).textContent = out.slice(0, 600);
+    $('dot-'+key).className = 'dot ok';
+  }catch(e){
+    $('body-'+key).className = 'connector-body';
+    $('body-'+key).textContent = 'Could not reach ' + c.name + '.';
+    $('dot-'+key).className = 'dot err';
+  }
+}
+
+/* ================= to-do list ================= */
+let todos = [];
+async function loadTodos(){ todos = await loadJSON('home-todos', []); renderTodos(); }
+function renderTodos(){
+  $('todoList').innerHTML = todos.map(t=>`
+    <div class="todo-row ${t.done?'done':''}" data-id="${t.id}">
+      <input type="checkbox" ${t.done?'checked':''} data-toggle="${t.id}">
+      <span>${esc(t.text)}</span>
+      <button class="ghost" data-del="${t.id}">✕</button>
+    </div>
+  `).join('') || '<div class="empty">Nothing on your list.</div>';
+  $('todoList').querySelectorAll('[data-toggle]').forEach(cb=>{
+    cb.addEventListener('change', async ()=>{
+      const t = todos.find(x=>x.id===cb.dataset.toggle); t.done = cb.checked;
+      await saveJSON('home-todos', todos); renderTodos();
+    });
+  });
+  $('todoList').querySelectorAll('[data-del]').forEach(b=>{
+    b.addEventListener('click', async ()=>{
+      todos = todos.filter(x=>x.id!==b.dataset.del);
+      await saveJSON('home-todos', todos); renderTodos();
+    });
+  });
+}
+$('todoAddBtn').addEventListener('click', async ()=>{
+  const v = $('todoInput').value.trim(); if(!v) return;
+  todos.push({id:uid(), text:v, done:false});
+  $('todoInput').value='';
+  await saveJSON('home-todos', todos); renderTodos();
+});
+$('todoInput').addEventListener('keydown', e=>{ if(e.key==='Enter') $('todoAddBtn').click(); });
+
+/* ================= pomodoro ================= */
+let pomoSeconds = 25*60, pomoRunning=false, pomoTimer=null, pomoSessions=0;
+async function loadPomo(){ pomoSessions = await loadJSON('home-pomo-sessions', 0); renderPomo(); }
+function renderPomo(){
+  const m = Math.floor(pomoSeconds/60), s = pomoSeconds%60;
+  $('pomoDisplay').textContent = String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  $('pomoMeta').textContent = pomoSessions + ' session' + (pomoSessions===1?'':'s') + ' completed';
+}
+$('pomoStart').addEventListener('click', ()=>{
+  if(pomoRunning) return;
+  pomoRunning = true;
+  pomoTimer = setInterval(async ()=>{
+    pomoSeconds--;
+    if(pomoSeconds<=0){
+      clearInterval(pomoTimer); pomoRunning=false; pomoSeconds=25*60; pomoSessions++;
+      await saveJSON('home-pomo-sessions', pomoSessions);
+    }
+    renderPomo();
+  }, 1000);
+});
+$('pomoPause').addEventListener('click', ()=>{ clearInterval(pomoTimer); pomoRunning=false; });
+$('pomoReset').addEventListener('click', ()=>{ clearInterval(pomoTimer); pomoRunning=false; pomoSeconds=25*60; renderPomo(); });
+
+/* ================= habits ================= */
+let habits = [];
+async function loadHabits(){
+  habits = await loadJSON('home-habits', [{id:uid(), name:'Study block', days:[false,false,false,false,false,false,false]}]);
+  renderHabits();
+}
+function renderHabits(){
+  $('habitList').innerHTML = habits.map(h=>`
+    <div class="habit-row" data-id="${h.id}">
+      <span class="hname">${esc(h.name)}</span>
+      <div class="habit-days">
+        ${h.days.map((on,i)=>`<div class="hday ${on?'on':''}" data-day="${i}"></div>`).join('')}
+      </div>
+    </div>
+  `).join('') || '<div class="empty">No habits tracked yet.</div>';
+  $('habitList').querySelectorAll('.habit-row').forEach(row=>{
+    const h = habits.find(x=>x.id===row.dataset.id);
+    row.querySelectorAll('.hday').forEach(d=>{
+      d.addEventListener('click', async ()=>{
+        const i = +d.dataset.day; h.days[i] = !h.days[i];
+        await saveJSON('home-habits', habits); renderHabits();
+      });
+    });
+  });
+}
+$('addHabitBtn').addEventListener('click', async ()=>{
+  const name = prompt('Habit name?'); if(!name) return;
+  habits.push({id:uid(), name, days:[false,false,false,false,false,false,false]});
+  await saveJSON('home-habits', habits); renderHabits();
+});
+
+/* ================= project log ================= */
+let logs = [];
+async function loadLogs(){ logs = await loadJSON('home-logs', []); renderLogs(); }
+function renderLogs(){
+  $('logList').innerHTML = logs.slice(0,8).map(l=>`
+    <div class="log-item"><b>${esc(l.date)}</b>${esc(l.text)}</div>
+  `).join('') || '<div class="empty">No entries yet.</div>';
+}
+$('addLogBtn').addEventListener('click', async ()=>{
+  const text = prompt('What did you work on?'); if(!text) return;
+  logs.unshift({date: new Date().toLocaleDateString(undefined,{month:'short',day:'numeric'}), text});
+  await saveJSON('home-logs', logs); renderLogs();
+});
+
+/* ================= command bar ================= */
+document.addEventListener('keydown', e=>{
+  if(e.key==='/' && document.activeElement.tagName!=='INPUT' && document.activeElement.tagName!=='TEXTAREA'){
+    e.preventDefault(); $('cmdInput').focus();
+  }
+});
+$('cmdInput').addEventListener('keydown', e=>{
+  if(e.key==='Enter'){
+    const v = $('cmdInput').value.trim();
+    if(v){ $('chatInput').value = v; $('cmdInput').value=''; sendChat(); }
+  }
+});
+
+/* ================= init ================= */
+(async function init(){
+  await Promise.all([
+    loadTiles(), loadPrompts(), loadTheme(), loadAssignments(),
+    loadChat(), loadTodos(), loadPomo(), loadHabits(), loadLogs()
+  ]);
+  renderSubjects();
+  renderConnectorList();
+  refreshBrief();
+})();
+</script>
+</body>
+</html>
